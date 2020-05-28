@@ -54,9 +54,20 @@ class Sync
      *
      * @return Util
      */
-    public function getUtil()
+    public function getUtil($path=null)
     {
         return $this->util;
+    }
+
+    public function setFolder($path='/')
+    {
+      $this->util = new Util($this->master, $this->slave, $path);
+      return $this;
+    }
+
+    public function exclude($path=null)
+    {
+      if($path) $this->excludes[] = $path;
     }
 
     /**
@@ -82,9 +93,9 @@ class Sync
      *
      * @return $this
      */
-    public function syncWrites()
+    public function syncWrites($writes)
     {
-        foreach ($this->util->getWrites() as $path) {
+        foreach ($writes as $path) {
             $this->put($path);
         }
 
@@ -96,9 +107,9 @@ class Sync
      *
      * @return $this
      */
-    public function syncDeletes()
+    public function syncDeletes($deletes)
     {
-        foreach ($this->util->getDeletes() as $path) {
+        foreach ($deletes as $path) {
 
             // A dir delete may of deleted this path already.
             if ($this->slave->has($path['path']) === false) {
@@ -121,9 +132,9 @@ class Sync
      *
      * @return $this
      */
-    public function syncUpdates()
+    public function syncUpdates($updates)
     {
-        foreach ($this->util->getUpdates() as $path) {
+        foreach ($updates as $path) {
             $this->put($path);
         }
 
@@ -135,12 +146,28 @@ class Sync
      *
      * @return $this
      */
-    public function sync()
+    public function sync($folder = null)
     {
+        if($folder) {
+          $this->setFolder($folder);
+        }
+
+        $writes = $this->util->getWrites();
+
+        echo PHP_EOL . "Syncing " . count($writes) . " writes";
+
+        $deletes = $this->util->getDeletes();
+
+        echo PHP_EOL . "Syncing " . count($deletes) . " writes";
+
+        $updates = $this->util->getUpdates();
+
+        echo PHP_EOL . "Syncing " . count($updates) . " writes";
+
         return $this
-            ->syncWrites()
-            ->syncUpdates()
-            ->syncDeletes()
+            ->syncWrites($writes)
+            ->syncUpdates($updates)
+            ->syncDeletes($deletes)
         ;
     }
 }
