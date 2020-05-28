@@ -220,7 +220,7 @@ class Sync
              ->syncDeletes($deletes)
          ;
 
-         echo PHP_EOL . (time() - $start) . " seconds";
+         echo PHP_EOL . (time() - $start) . " seconds" . PHP_EOL;
 
          return $this;
      }
