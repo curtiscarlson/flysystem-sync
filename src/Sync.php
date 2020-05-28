@@ -84,8 +84,7 @@ class Sync
         }
         // Otherwise create or update the file.
         else {
-            $response = $this->slave->putStream($path['path'], $this->master->readStream($path['path']));
-            dd($response);
+            return $response = $this->slave->putStream($path['path'], $this->master->readStream($path['path']));
         }
     }
 
@@ -96,8 +95,23 @@ class Sync
      */
     public function syncWrites($writes)
     {
+        $requests = 0;
+        $start = time();
         foreach ($writes as $path) {
-            $this->put($path);
+            $now = time();
+            $requests++;
+            if($now > $start) {
+              $start = $now;
+              $requests = 1;
+            }
+            if($requests > 100) { // rate limit to 100 requests per second
+              echo PHP_EOL . "sleeping";
+              sleep(1);
+            }
+            $result = $this->put($path);
+            if(!$result) {
+              echo PHP_EOL . "Error putting: $path";
+            }
         }
 
         return $this;
@@ -110,7 +124,21 @@ class Sync
      */
     public function syncDeletes($deletes)
     {
+        $requests = 0;
+        $start = time();
+
         foreach ($deletes as $path) {
+
+            $now = time();
+            $requests++;
+            if($now > $start) {
+              $start = $now;
+              $requests = 1;
+            }
+            if($requests > 100) { // rate limit to 100 requests per second
+              echo PHP_EOL . "sleeping";
+              sleep(1);
+            }
 
             // A dir delete may of deleted this path already.
             if ($this->slave->has($path['path']) === false) {
@@ -118,10 +146,14 @@ class Sync
             }
             // A dir? They're deleted a special way.
             elseif ($path['dir'] === true) {
-                $this->slave->deleteDir($path['path']);
+                $result = $this->slave->deleteDir($path['path']);
             }
             else {
-                $this->slave->delete($path['path']);
+                $result = $this->slave->delete($path['path']);
+            }
+
+            if(!$result) {
+              echo PHP_EOL . "Error deleting: $path";
             }
         }
 
@@ -135,8 +167,23 @@ class Sync
      */
     public function syncUpdates($updates)
     {
+        $requests = 0;
+        $start = time();
         foreach ($updates as $path) {
-            $this->put($path);
+            $now = time();
+            $requests++;
+            if($now > $start) {
+              $start = $now;
+              $requests = 1;
+            }
+            if($requests > 100) { // rate limit to 100 requests per second
+              echo PHP_EOL . "sleeping";
+              sleep(1);
+            }
+            $result = $this->put($path);
+            if(!$result) {
+              echo PHP_EOL . "Error putting: $path";
+            }
         }
 
         return $this;
