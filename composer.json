@@ -1,5 +1,5 @@
 {
-    "name": "thadbryson/flysystem-sync",
+    "name": "curtiscarlson/flysystem-sync",
     "description": "Flysystem plugin to sync directories.",
     "minimum-stability": "stable",
     "license": "MIT",
