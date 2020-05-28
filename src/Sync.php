@@ -146,28 +146,34 @@ class Sync
      *
      * @return $this
      */
-    public function sync($folder = null)
-    {
-        if($folder) {
-          $this->setFolder($folder);
-        }
+     public function sync($folder = null)
+     {
+         if($folder) {
+           $this->setFolder($folder);
+         }
 
-        $writes = $this->util->getWrites();
+         $writes = $this->util->getWrites();
 
-        echo PHP_EOL . "Syncing " . count($writes) . " writes";
+         echo PHP_EOL . "Syncing " . count($writes) . " writes";
 
-        $deletes = $this->util->getDeletes();
+         $deletes = $this->util->getDeletes();
 
-        echo PHP_EOL . "Syncing " . count($deletes) . " writes";
+         echo PHP_EOL . "Syncing " . count($deletes) . " deletes";
 
-        $updates = $this->util->getUpdates();
+         $updates = $this->util->getUpdates();
 
-        echo PHP_EOL . "Syncing " . count($updates) . " writes";
+         echo PHP_EOL . "Syncing " . count($updates) . " updates";
 
-        return $this
-            ->syncWrites($writes)
-            ->syncUpdates($updates)
-            ->syncDeletes($deletes)
-        ;
-    }
+         $start = time();
+
+         $this
+             ->syncWrites($writes)
+             ->syncUpdates($updates)
+             ->syncDeletes($deletes)
+         ;
+
+         echo PHP_EOL . (time() - $start) . " seconds";
+
+         return $this;
+     }
 }
