@@ -84,7 +84,8 @@ class Sync
         }
         // Otherwise create or update the file.
         else {
-            $this->slave->putStream($path['path'], $this->master->readStream($path['path']));
+            $response = $this->slave->putStream($path['path'], $this->master->readStream($path['path']));
+            dd($response);
         }
     }
 
