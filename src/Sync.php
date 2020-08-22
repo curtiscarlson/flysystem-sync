@@ -262,8 +262,25 @@ class Sync
              ->syncWrites($writes)
              ->syncUpdates($updates)
              // ->syncDeletes($deletes)
-             ->syncReads($deletes)
+             // ->syncReads($deletes)
          ;
+
+         echo PHP_EOL . (time() - $start) . " seconds" . PHP_EOL;
+
+         return $this;
+     }
+     public function restore($folder = null)
+     {
+         if($folder) {
+           $this->setFolder($folder);
+         }
+
+         $deletes = $this->util->getDeletes();
+
+
+         $start = time();
+
+         $this->syncReads($deletes);
 
          echo PHP_EOL . (time() - $start) . " seconds" . PHP_EOL;
 
