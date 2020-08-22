@@ -87,6 +87,23 @@ class Sync
             return $response = $this->slave->putStream($path['path'], $this->master->readStream($path['path']));
         }
     }
+    /**
+     * Call ->get() on $master. Update/Write content from $slave. Also sets visibility on master.
+     *
+     * @param $path
+     * @return void
+     */
+    protected function get($path)
+    {
+        // A dir? Create it.
+        if ($path['dir'] === true) {
+            $this->master->createDir($path['path']);
+        }
+        // Otherwise create or update the file.
+        else {
+            return $response = $this->master->putStream($path['path'], $this->slave->readStream($path['path']));
+        }
+    }
 
     /**
      * Sync any writes.
@@ -160,6 +177,33 @@ class Sync
         return $this;
     }
 
+    public function syncReads($deletes)  // copy the file to new drive instead of deleting
+    {
+        $requests = 0;
+        $start = time();
+
+        foreach ($deletes as $path) {
+
+            $now = time();
+            $requests++;
+            if($now > $start) {
+              $start = $now;
+              $requests = 1;
+            }
+            if($requests > 100) { // rate limit to 100 requests per second
+              echo PHP_EOL . "sleeping";
+              sleep(1);
+            }
+
+            $result = $this->get($path);
+            if(!$result) {
+              echo PHP_EOL . "Error getting: $path";
+            }
+        }
+
+        return $this;
+    }
+
     /**
      * Sync any updates.
      *
@@ -217,7 +261,8 @@ class Sync
          $this
              ->syncWrites($writes)
              ->syncUpdates($updates)
-             ->syncDeletes($deletes)
+             // ->syncDeletes($deletes)
+             ->syncReads($deletes)
          ;
 
          echo PHP_EOL . (time() - $start) . " seconds" . PHP_EOL;
