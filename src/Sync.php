@@ -277,6 +277,7 @@ class Sync
 
          $deletes = $this->util->getDeletes();
 
+         echo PHP_EOL . "Syncing " . count($deletes) . " reads";
 
          $start = time();
 
