@@ -250,7 +250,7 @@ class Sync
 
          $deletes = $this->util->getDeletes();
 
-         echo PHP_EOL . "Syncing " . count($deletes) . " deletes";
+         echo PHP_EOL . "Not Syncing " . count($deletes) . " deletes";
 
          $updates = $this->util->getUpdates();
 
